@@ -43,6 +43,8 @@ balance_error_string="Error in getting sender balance : http post error: Post"  
 rate_limit_error_string="rpc error: code = ResourceExhausted desc = request ratelimited"  # Rate limit error string to search for
 rate_limit_blob_error="rpc error: code = ResourceExhausted desc = request ratelimited: System blob rate limit for quorum 0"  # New rate limit error string to search for
 err_string="ERR"  # Error string to search for in logs
+retry_transaction_string="Retrying the transaction after 10 seconds..."  # Retry transaction string to search for
+verify_pod_error_string="Error in VerifyPod transaction Error"  # New VerifyPod error string to search for
 restart_delay=180  # Restart delay in seconds (3 minutes)
 config_file="$HOME/.tracks/config/sequencer.toml"
 
@@ -95,6 +97,26 @@ while true; do
   # Get the last 10 lines of service logs
   logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
 
+  # Check for retry transaction string in logs
+  if echo "$logs" | grep -q "$retry_transaction_string"; then
+    echo "Found retry transaction string in logs, restarting $service_name..."
+    systemctl restart "$service_name"
+    echo "Service $service_name restarted"
+    # Sleep for the restart delay
+    sleep "$restart_delay"
+    continue
+  fi
+
+  # Check for VerifyPod error string in logs
+  if echo "$logs" | grep -q "$verify_pod_error_string"; then
+    echo "Found VerifyPod error string in logs, restarting $service_name..."
+    systemctl restart "$service_name"
+    echo "Service $service_name restarted"
+    # Sleep for the restart delay
+    sleep "$restart_delay"
+    continue
+  fi
+
   # Check for errors in logs
   if echo "$logs" | grep -q "$error_string" || \
      echo "$logs" | grep -q "$vrf_error_string" || \
@@ -144,7 +166,6 @@ while true; do
   # Sleep for the restart delay
   sleep "$restart_delay"
 done
-
   ```
 
 4. Save and exit the editor:
