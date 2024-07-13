@@ -109,7 +109,16 @@ while true; do
 
   # Check for VerifyPod error string in logs
   if echo "$logs" | grep -q "$verify_pod_error_string"; then
-    echo "Found VerifyPod error string in logs, restarting $service_name..."
+    echo "Found VerifyPod error string in logs, updating $config_file and restarting $service_name..."
+    
+    # Select a random unique URL
+    random_url=$(select_random_url "${unique_urls[@]}")
+    
+    # Update the RPC URL in the config file
+    sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
+
+    echo "RPC URL updated in $config_file"
+    # Restart the service
     systemctl restart "$service_name"
     echo "Service $service_name restarted"
     # Sleep for the restart delay
@@ -180,3 +189,4 @@ done
     ```sh
     bash fix_stationd_errors.sh
     ```
+
