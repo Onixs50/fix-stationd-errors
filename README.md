@@ -41,6 +41,8 @@ vrf_error_string="Failed to Init VRF"  # New error string to search for
 client_error_string="Client connection error: error while requesting node"  # Another error string to search for
 balance_error_string="Error in getting sender balance : http post error: Post"  # Another error string to search for
 rate_limit_error_string="rpc error: code = ResourceExhausted desc = request ratelimited"  # Rate limit error string to search for
+rate_limit_blob_error="rpc error: code = ResourceExhausted desc = request ratelimited: System blob rate limit for quorum 0"  # New rate limit error string to search for
+err_string="ERR"  # Error string to search for in logs
 restart_delay=180  # Restart delay in seconds (3 minutes)
 config_file="$HOME/.tracks/config/sequencer.toml"
 
@@ -94,7 +96,13 @@ while true; do
   logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
 
   # Check for errors in logs
-  if echo "$logs" | grep -q "$error_string" || echo "$logs" | grep -q "$vrf_error_string" || echo "$logs" | grep -q "$client_error_string" || echo "$logs" | grep -q "$balance_error_string" || echo "$logs" | grep -q "$rate_limit_error_string"; then
+  if echo "$logs" | grep -q "$error_string" || \
+     echo "$logs" | grep -q "$vrf_error_string" || \
+     echo "$logs" | grep -q "$client_error_string" || \
+     echo "$logs" | grep -q "$balance_error_string" || \
+     echo "$logs" | grep -q "$rate_limit_error_string" || \
+     echo "$logs" | grep -q "$rate_limit_blob_error" || \
+     echo "$logs" | grep -q "$err_string"; then
     echo "Found error in logs, updating $config_file and restarting $service_name..."
 
     # Select a random unique URL
@@ -136,6 +144,7 @@ while true; do
   # Sleep for the restart delay
   sleep "$restart_delay"
 done
+
   ```
 
 4. Save and exit the editor:
