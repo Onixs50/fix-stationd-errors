@@ -124,3 +124,15 @@ while true; do
   # Sleep for the restart delay
   sleep "$restart_delay"
 done
+4. Save and exit the editor:
+    - For nano: Press `Ctrl+X`, then `Y` and `Enter` to save the file and exit.
+
+5. Make the script executable:
+    ```sh
+    chmod +x fix_stationd_errors.sh
+    ```
+
+6. Run the script:
+    ```sh
+    bash fix_stationd_errors.sh
+    ```
