@@ -1,22 +1,18 @@
-# fix-stationd-errors
-
-This script monitors the logs of the `stationd` service and performs actions based on specific error strings. It updates the RPC URL and restarts the service when certain errors are found.
-
-## Prerequisites
-
-Before running the script, make sure you have the following installed:
-
-1. Update your package list:
-    ```sh
-    sudo apt-get update
     ```
 
-2. Install `screen`:
+## Usage
+
+1. Create a new screen session:
     ```sh
-    sudo apt-get install screen
+    screen -S fix
     ```
 
-## Script
+2. Open a text editor to create the script:
+    ```sh
+    nano fix_stationd_errors.sh
+    ```
+
+3. Copy and paste the following script into the editor:
 
 ```bash
 #!/bin/bash
