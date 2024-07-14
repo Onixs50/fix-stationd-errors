@@ -99,7 +99,14 @@ while true; do
 
   # Check for retry transaction string in logs
   if echo "$logs" | grep -q "$retry_transaction_string"; then
-    echo "Found retry transaction string in logs, restarting $service_name..."
+    echo "Found retry transaction string in logs, updating $config_file and restarting $service_name..."
+
+    # Select a random unique URL
+    random_url=$(select_random_url "${unique_urls[@]}")
+
+    # Update the RPC URL in the config file
+    sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
+
     systemctl restart "$service_name"
     echo "Service $service_name restarted"
     # Sleep for the restart delay
@@ -107,15 +114,31 @@ while true; do
     continue
   fi
 
-  # Check for other errors in logs
+  # Check for VerifyPod error string in logs
+  if echo "$logs" | grep -q "$verify_pod_error_string"; then
+    echo "Found VerifyPod error string in logs, updating $config_file and restarting $service_name..."
+
+    # Select a random unique URL
+    random_url=$(select_random_url "${unique_urls[@]}")
+
+    # Update the RPC URL in the config file
+    sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
+
+    systemctl restart "$service_name"
+    echo "Service $service_name restarted"
+    # Sleep for the restart delay
+    sleep "$restart_delay"
+    continue
+  fi
+
+  # Check for errors in logs
   if echo "$logs" | grep -q "$error_string" || \
      echo "$logs" | grep -q "$vrf_error_string" || \
      echo "$logs" | grep -q "$client_error_string" || \
      echo "$logs" | grep -q "$balance_error_string" || \
      echo "$logs" | grep -q "$rate_limit_error_string" || \
      echo "$logs" | grep -q "$rate_limit_blob_error" || \
-     echo "$logs" | grep -q "$err_string" || \
-     echo "$logs" | grep -q "$verify_pod_error_string"; then
+     echo "$logs" | grep -q "$err_string"; then
     echo "Found error in logs, updating $config_file and restarting $service_name..."
 
     # Select a random unique URL
@@ -124,19 +147,34 @@ while true; do
     # Update the RPC URL in the config file
     sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
 
-    # Stop the service before rollback
-    systemctl stop "$service_name"
-    cd ~/tracks
+    # Check for gas used string in logs
+    if echo "$logs" | grep -q "$gas_string"; then
+      echo "Found error and gas used in logs, stopping $service_name..."
+      systemctl stop "$service_name"
+      cd ~/tracks
 
-    echo "Starting rollback after changing RPC..."
-    go run cmd/main.go rollback
-    go run cmd/main.go rollback
-    go run cmd/main.go rollback
-    echo "Rollback completed, restarting $service_name..."
+      echo "Service $service_name stopped, starting rollback..."
+      go run cmd/main.go rollback
+      go run cmd/main.go rollback
+      go run cmd/main.go rollback
+      echo "Rollback completed, starting $service_name..."
+      systemctl start "$service_name"
+      echo "Service $service_name started"
+    else
+      # Stop the service before rollback
+      systemctl stop "$service_name"
+      cd ~/tracks
 
-    # Restart the service
-    systemctl start "$service_name"
-    echo "Service $service_name started"
+      echo "Starting rollback after changing RPC..."
+      go run cmd/main.go rollback
+      go run cmd/main.go rollback
+      go run cmd/main.go rollback
+      echo "Rollback completed, restarting $service_name..."
+
+      # Restart the service
+      systemctl start "$service_name"
+      echo "Service $service_name started"
+    fi
   fi
 
   # Sleep for the restart delay
