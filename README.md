@@ -31,7 +31,6 @@ Before running the script, make sure you have the following installed:
 3. Copy and paste the following script into the editor:
 
 ```bash
-
 #!/bin/bash
 
 service_name="stationd"
@@ -49,6 +48,9 @@ error_strings=(
   "Error in ValidateVRF transaction Error"
   "Failed to get transaction by hash: not found"
   "json_rpc_error_string: error while requesting node"
+  "can not get junctionDetails.json data"
+  "JsonRPC should not be empty at config file"
+  "Error in getting address"
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
@@ -87,8 +89,6 @@ unique_urls=(
   "https://airchains-rpc.kubenode.xyz/"
 )
 
-removed_urls=()
-
 function select_random_url {
   local array=("$@")
   local rand_index=$(( RANDOM % ${#array[@]} ))
@@ -100,10 +100,8 @@ function update_rpc_and_restart {
   sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
   systemctl restart "$service_name"
   echo "Service $service_name restarted"
+  echo -e "\e[32mRemoved RPC URL: $random_url\e[0m"
   sleep "$restart_delay"
-  unique_urls=("${unique_urls[@]/$random_url}")
-  removed_urls+=("$random_url")
-  echo "Removed RPC URL: $random_url"
 }
 
 function display_waiting_message {
@@ -141,7 +139,6 @@ while true; do
   sleep "$restart_delay"
 done
 
-echo -e "\e[35mI am waiting for you AIRCHAIN\e[0m"
 ```
 4. Save and exit the editor:
     - For nano: Press `Ctrl+X`, then `Y` and `Enter` to save the file and exit.
@@ -156,5 +153,7 @@ echo -e "\e[35mI am waiting for you AIRCHAIN\e[0m"
     bash fix.sh
     ```
 ![image](https://github.com/user-attachments/assets/fae5e553-263b-4a80-be8a-5607817ad8e4)
+
+
 
 
