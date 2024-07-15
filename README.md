@@ -25,30 +25,34 @@ Before running the script, make sure you have the following installed:
 
 2. Open a text editor to create the script:
     ```sh
-    nano fix_stationd_errors.sh
+    nano fix.sh
     ```
 
 3. Copy and paste the following script into the editor:
 
 ```bash
+
 #!/bin/bash
 
-# Define service name and log search string
 service_name="stationd"
-error_string="ERROR"  # Error string to search for in PC logs
-gas_string="with gas used"
-vrf_error_string="Failed to Init VRF"  # New error string to search for
-client_error_string="Client connection error: error while requesting node"  # Another error string to search for
-balance_error_string="Error in getting sender balance : http post error: Post"  # Another error string to search for
-rate_limit_error_string="rpc error: code = ResourceExhausted desc = request ratelimited"  # Rate limit error string to search for
-rate_limit_blob_error="rpc error: code = ResourceExhausted desc = request ratelimited: System blob rate limit for quorum 0"  # New rate limit error string to search for
-err_string="ERR"  # Error string to search for in logs
-retry_transaction_string="Retrying the transaction after 10 seconds..."  # Retry transaction string to search for
-verify_pod_error_string="Error in VerifyPod transaction Error"  # New VerifyPod error string to search for
-restart_delay=180  # Restart delay in seconds (3 minutes)
+error_strings=(
+  "ERROR"
+  "with gas used"
+  "Failed to Init VRF"
+  "Client connection error: error while requesting node"
+  "Error in getting sender balance : http post error: Post"
+  "rpc error: code = ResourceExhausted desc = request ratelimited"
+  "rpc error: code = ResourceExhausted desc = request ratelimited: System blob rate limit for quorum 0"
+  "ERR"
+  "Retrying the transaction after 10 seconds..."
+  "Error in VerifyPod transaction Error"
+  "Error in ValidateVRF transaction Error"
+  "Failed to get transaction by hash: not found"
+  "json_rpc_error_string: error while requesting node"
+)
+restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
 
-# List of unique RPC URLs
 unique_urls=(
   "https://airchains-rpc-testnet.zulnaaa.com/"
   "https://t-airchains.rpc.utsa.tech/"
@@ -83,85 +87,42 @@ unique_urls=(
   "https://airchains-rpc.kubenode.xyz/"
 )
 
-# Function to select a random URL from the list
+removed_urls=()
+
 function select_random_url {
   local array=("$@")
   local rand_index=$(( RANDOM % ${#array[@]} ))
   echo "${array[$rand_index]}"
 }
 
+function update_rpc_and_restart {
+  local random_url=$(select_random_url "${unique_urls[@]}")
+  sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
+  systemctl restart "$service_name"
+  echo "Service $service_name restarted"
+  sleep "$restart_delay"
+  unique_urls=("${unique_urls[@]/$random_url}")
+  removed_urls+=("$random_url")
+  echo "Removed RPC URL: $random_url"
+}
+
+function display_waiting_message {
+  echo -e "\e[35mI am waiting for you AIRCHAIN\e[0m"
+}
+
 echo "Script started to monitor errors in PC logs..."
-echo "by onixia"
+echo -e "\e[32mby onixia\e[0m"
+echo "Timestamp: $(date)"
 
 while true; do
-  # Get the last 10 lines of service logs
   logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
 
-  # Check for retry transaction string in logs
-  if echo "$logs" | grep -q "$retry_transaction_string"; then
-    echo "Found retry transaction string in logs, updating $config_file and restarting $service_name..."
+  for error_string in "${error_strings[@]}"; do
+    if echo "$logs" | grep -q "$error_string"; then
+      echo "Found error ('$error_string') in logs, updating $config_file and restarting $service_name..."
 
-    # Select a random unique URL
-    random_url=$(select_random_url "${unique_urls[@]}")
+      update_rpc_and_restart
 
-    # Update the RPC URL in the config file
-    sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
-
-    systemctl restart "$service_name"
-    echo "Service $service_name restarted"
-    # Sleep for the restart delay
-    sleep "$restart_delay"
-    continue
-  fi
-
-  # Check for VerifyPod error string in logs
-  if echo "$logs" | grep -q "$verify_pod_error_string"; then
-    echo "Found VerifyPod error string in logs, updating $config_file and restarting $service_name..."
-
-    # Select a random unique URL
-    random_url=$(select_random_url "${unique_urls[@]}")
-
-    # Update the RPC URL in the config file
-    sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
-
-    systemctl restart "$service_name"
-    echo "Service $service_name restarted"
-    # Sleep for the restart delay
-    sleep "$restart_delay"
-    continue
-  fi
-
-  # Check for errors in logs
-  if echo "$logs" | grep -q "$error_string" || \
-     echo "$logs" | grep -q "$vrf_error_string" || \
-     echo "$logs" | grep -q "$client_error_string" || \
-     echo "$logs" | grep -q "$balance_error_string" || \
-     echo "$logs" | grep -q "$rate_limit_error_string" || \
-     echo "$logs" | grep -q "$rate_limit_blob_error" || \
-     echo "$logs" | grep -q "$err_string"; then
-    echo "Found error in logs, updating $config_file and restarting $service_name..."
-
-    # Select a random unique URL
-    random_url=$(select_random_url "${unique_urls[@]}")
-
-    # Update the RPC URL in the config file
-    sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
-
-    # Check for gas used string in logs
-    if echo "$logs" | grep -q "$gas_string"; then
-      echo "Found error and gas used in logs, stopping $service_name..."
-      systemctl stop "$service_name"
-      cd ~/tracks
-
-      echo "Service $service_name stopped, starting rollback..."
-      go run cmd/main.go rollback
-      go run cmd/main.go rollback
-      go run cmd/main.go rollback
-      echo "Rollback completed, starting $service_name..."
-      systemctl start "$service_name"
-      echo "Service $service_name started"
-    else
-      # Stop the service before rollback
       systemctl stop "$service_name"
       cd ~/tracks
 
@@ -171,26 +132,29 @@ while true; do
       go run cmd/main.go rollback
       echo "Rollback completed, restarting $service_name..."
 
-      # Restart the service
       systemctl start "$service_name"
-      echo "Service $service_name started"
+      display_waiting_message
+      break
     fi
-  fi
+  done
 
-  # Sleep for the restart delay
   sleep "$restart_delay"
 done
-  ```
 
+echo -e "\e[35mI am waiting for you AIRCHAIN\e[0m"
+```
 4. Save and exit the editor:
     - For nano: Press `Ctrl+X`, then `Y` and `Enter` to save the file and exit.
 
 5. Make the script executable:
     ```sh
-    chmod +x fix_stationd_errors.sh
+    chmod +x fix.sh
     ```
 
 6. Run the script:
     ```sh
-    bash fix_stationd_errors.sh
+    bash fix.sh
     ```
+![image](https://github.com/user-attachments/assets/fae5e553-263b-4a80-be8a-5607817ad8e4)
+
+
