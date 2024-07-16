@@ -30,8 +30,7 @@ Before running the script, make sure you have the following installed:
 
 3. Copy and paste the following script into the editor:
 
-```bash
-#!/bin/bash
+```#!/bin/bash
 
 service_name="stationd"
 error_strings=(
@@ -51,6 +50,10 @@ error_strings=(
   "can not get junctionDetails.json data"
   "JsonRPC should not be empty at config file"
   "Error in getting address"
+  "Failed to load conf info"
+  "error unmarshalling config"
+  "Error in initiating sequencer nodes due to the above error"
+  "Failed to Transact Verify pod"
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
@@ -138,7 +141,6 @@ while true; do
 
   sleep "$restart_delay"
 done
-
 ```
 4. Save and exit the editor:
     - For nano: Press `Ctrl+X`, then `Y` and `Enter` to save the file and exit.
@@ -153,6 +155,9 @@ done
     bash fix.sh
     ```
 ![image](https://github.com/user-attachments/assets/fae5e553-263b-4a80-be8a-5607817ad8e4)
+
+
+
 
 
 
