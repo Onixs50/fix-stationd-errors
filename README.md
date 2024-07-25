@@ -54,6 +54,7 @@ error_strings=(
   "error unmarshalling config"
   "Error in initiating sequencer nodes due to the above error"
   "Failed to Transact Verify pod"
+  " VRF record is nil"
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
