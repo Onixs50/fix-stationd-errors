@@ -130,7 +130,7 @@ echo -e "\e[1;32m============================================\e[0m"
 echo -e "\e[1;36mScript started to monitor logs...\e[0m"
 echo "Timestamp: $(date)"
 echo -e "\e[32mCoded By Onixia\e[0m"
-echo "Script started to monitor errors in shit airchain..."
+echo "Script started to monitor errors in shit chain..."
 echo "Timestamp: $(date)"
 
 while true; do
