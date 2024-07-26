@@ -177,7 +177,7 @@ echo "Timestamp: $(date)"
 while true; do
   check_for_updates
 
-  logs=$(systemctl status "$service_name" --no-pager | tail -n 100)
+  logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
   for error in "${error_strings[@]}"; do
     if echo "$logs" | grep -q "$error"; then
       echo -e "\e[31mFound error ('$error') in logs, updating $config_file and restarting $service_name...\e[0m"
