@@ -1,4 +1,3 @@
-
 service_name="stationd"
 error_strings=(
   "ERROR"
@@ -82,6 +81,30 @@ function display_waiting_message {
   echo -e "\e[35mI am waiting for you AIRCHAIN\e[0m"
 }
 
+function check_for_updates {
+  echo "Checking for updates..."
+  local repo_url="https://github.com/Onixs50/fix-stationd-errors.git"
+  local local_dir="$HOME/fix-stationd-errors"
+  
+  if [ -d "$local_dir" ]; then
+    cd "$local_dir"
+    git fetch origin main
+    local local_commit=$(git rev-parse HEAD)
+    local remote_commit=$(git rev-parse origin/main)
+    
+    if [ "$local_commit" != "$remote_commit" ]; then
+      echo "New update found. Updating..."
+      git pull origin main
+      echo -e "\e[32mUpdated to the latest version from $repo_url\e[0m"
+    else
+      echo "Already up-to-date."
+    fi
+  else
+    git clone "$repo_url" "$local_dir"
+    echo -e "\e[32mCloned the repository from $repo_url\e[0m"
+  fi
+}
+
 echo "Script started to monitor errors in PC logs..."
 echo -e "\e[32mby onixia\e[0m"
 echo "Timestamp: $(date)"
@@ -110,5 +133,6 @@ while true; do
     fi
   done
 
+  check_for_updates
   sleep "$restart_delay"
 done
