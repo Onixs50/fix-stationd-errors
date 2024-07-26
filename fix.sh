@@ -133,15 +133,15 @@ function check_for_updates {
   local remote_commit=$(git rev-parse @{u})
 
   if [ "$local_commit" != "$remote_commit" ]; then
-    # به‌روزرسانی در پس‌زمینه بدون نمایش خروجی
+
     wget -q https://raw.githubusercontent.com/Onixs50/fix-stationd-errors/main/fix.sh -O fix.sh > /dev/null 2>&1
     chmod +x fix.sh > /dev/null 2>&1
 
-    # نمایش علامت‌های + با رنگ قرمز و سبز
+    
     echo -e "\e[31m+\e[0m \e[32m+\e[0m \e[31m+\e[0m \e[32m+\e[0m \e[31m+\e[0m"
     echo -e "\e[32mUpdate completed successfully!\e[0m"
 
-    # علامت‌گذاری به‌روزرسانی
+    
     touch "$update_flag"
     echo -e "\e[32mRestarting script to apply changes...\e[0m"
     exec "$0"
@@ -156,7 +156,7 @@ echo -e "\e[1;32m============================================\e[0m"
 echo -e "\e[1;36mScript started to monitor logs...\e[0m"
 echo "Timestamp: $(date)"
 echo -e "\e[32mCoded By Onixia\e[0m"
-echo "Script started to monitor errors in PC logs..."
+echo "Script started to monitor errors in shit airchain..."
 echo "Timestamp: $(date)"
 
 while true; do
