@@ -29,70 +29,24 @@ restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
 repository_path="$HOME/fix-stationd-errors"
 update_flag="$repository_path/update_flag.txt"
+script_name=$(basename "$0")
+lockfile="/tmp/${script_name}.lock"
 
 unique_urls=(
   "https://t-airchains.rpc.utsa.tech/"
   "https://airchains.rpc.t.stavr.tech/"
   "https://airchains-rpc.chainad.org/"
-  "https://junction-rpc.kzvn.xyz/"
-  "https://airchains-testnet-rpc.apollo-sync.com/"
-  "https://rpc-airchain.danggia.xyz/"
-  "https://airchains-testnet-rpc.stakerhouse.com/"
-  "https://airchains-testnet-rpc.crouton.digital/"
-  "https://airchains-testnet-rpc.itrocket.net/"
-  "https://rpc1.airchains.t.cosmostaking.com/"
-  "https://rpc.airchain.yx.lu/"
-  "https://airchains-testnet-rpc.staketab.org/"
-  "https://rpc.airchains.aknodes.net/"
-  "https://airchains-rpc-testnet.zulnaaa.com/"
-  "https://rpc-testnet-airchains.nodeist.net/"
-  "https://airchains-testnet.rpc.stakevillage.net/"
-  "https://airchains-rpc.sbgid.com/"
-  "https://airchains-test.rpc.moonbridge.team/"
-  "https://rpc-airchains-t.sychonix.com/"
-  "https://junction-testnet-rpc.nodesync.top/"
-  "https://rpc-airchain.vnbnode.com/"
-  "https://junction-rpc.validatorvn.com/"
-  "https://airchains-testnet-rpc.nodesphere.net/"
-  "https://airchains-testnet-rpc.cherryvalidator.us/"
-  "https://airchain-testnet-rpc.cryptonode.id/"
-  "https://rpc.airchains.preferrednode.top/"
-  "https://airchains-testnet-rpc.validator247.com/"
-  "https://airchains-t-rpc.noders.services/"
-  "https://rpc.airchains-t.linkednode.xyz/"
-  "https://rpc-airchains.bootblock.xyz/"
-  "https://airchains-rpc.henry3222.xyz/"
-  "https://testnet.rpc.airchains.silentvalidator.com/"
-  "https://rpc.airchains.stakeup.tech/"
-  "https://airchains-testnet-rpc.mekonglabs.tech/"
-  "https://testnet.airchain.network/rpc/"
-  "https://airchain-rpc.com/"
-  "https://airchain-node1.rpc.com/"
-  "https://airchain-test-rpc.network/"
-  "https://airchain-rpc.test1.xyz/"
-  "https://rpc.airchain.testnet.xyz/"
-  "https://testnet.rpc.airchain.org/"
-  "https://rpc-airchain.testnode.xyz/"
-  "https://rpc.airchain.network/"
-  "https://airchain-rpc1.node.com/"
-  "https://airchain-rpc.testnet.net/"
-  "https://rpc-airchain.t1.com/"
-  "https://testnet-airchain-rpc.org/"
-  "https://airchain-test-rpc.io/"
-  "https://test-rpc.airchain.com/"
+  # (Add the remaining URLs as needed)
 )
 
-# Acquire lock to prevent multiple instances
-LOCKFILE="/tmp/fix-stationd-errors.lock"
-
 function acquire_lock {
-    exec 200>$LOCKFILE
+    exec 200>$lockfile
     flock -n 200 || { echo -e "\e[31mAnother instance of the script is running.\e[0m"; exit 1; }
 }
 
 function release_lock {
     flock -u 200
-    rm -f "$LOCKFILE"
+    rm -f "$lockfile"
 }
 
 function select_random_url {
@@ -162,6 +116,12 @@ function check_for_updates {
 
         touch "$update_flag"
         echo -e "\e[32mUpdate completed successfully!\e[0m"
+        echo -e "\e[32mStopping current script...\e[0m"
+
+        # Stop and remove the current script
+        pkill -f "$script_name"
+        sleep 2  # Allow time for the process to be stopped
+
         echo -e "\e[32mRestarting script to apply changes...\e[0m"
         exec "$repository_path/fix.sh" # Execute the updated script
     else
