@@ -22,7 +22,7 @@ error_strings=(
   "error unmarshalling config"
   "Error in initiating sequencer nodes due to the above error"
   "Failed to Transact Verify pod"
-  "VRF record is nil"
+  " VRF record is nil"
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
@@ -33,51 +33,6 @@ unique_urls=(
   "https://t-airchains.rpc.utsa.tech/"
   "https://airchains.rpc.t.stavr.tech/"
   "https://airchains-rpc.chainad.org/"
-  "https://junction-rpc.kzvn.xyz/"
-  "https://airchains-testnet-rpc.apollo-sync.com/"
-  "https://rpc-airchain.danggia.xyz/"
-  "https://airchains-testnet-rpc.stakerhouse.com/"
-  "https://airchains-testnet-rpc.crouton.digital/"
-  "https://airchains-testnet-rpc.itrocket.net/"
-  "https://rpc1.airchains.t.cosmostaking.com/"
-  "https://rpc.airchain.yx.lu/"
-  "https://airchains-testnet-rpc.staketab.org/"
-  "https://rpc.airchains.aknodes.net/"
-  "https://airchains-rpc-testnet.zulnaaa.com/"
-  "https://rpc-testnet-airchains.nodeist.net/"
-  "https://airchains-testnet.rpc.stakevillage.net/"
-  "https://airchains-rpc.sbgid.com/"
-  "https://airchains-test.rpc.moonbridge.team/"
-  "https://rpc-airchains-t.sychonix.com/"
-  "https://junction-testnet-rpc.nodesync.top/"
-  "https://rpc-airchain.vnbnode.com/"
-  "https://junction-rpc.validatorvn.com/"
-  "https://airchains-testnet-rpc.nodesphere.net/"
-  "https://airchains-testnet-rpc.cherryvalidator.us/"
-  "https://airchain-testnet-rpc.cryptonode.id/"
-  "https://rpc.airchains.preferrednode.top/"
-  "https://airchains-testnet-rpc.validator247.com/"
-  "https://airchains-t-rpc.noders.services/"
-  "https://rpc.airchains-t.linkednode.xyz/"
-  "https://rpc-airchains.bootblock.xyz/"
-  "https://airchains-rpc.henry3222.xyz/"
-  "https://testnet.rpc.airchains.silentvalidator.com/"
-  "https://rpc.airchains.stakeup.tech/"
-  "https://airchains-testnet-rpc.mekonglabs.tech/"
-  "https://testnet.airchain.network/rpc/"
-  "https://airchain-rpc.com/"
-  "https://airchain-node1.rpc.com/"
-  "https://airchain-test-rpc.network/"
-  "https://airchain-rpc.test1.xyz/"
-  "https://rpc.airchain.testnet.xyz/"
-  "https://testnet.rpc.airchain.org/"
-  "https://rpc-airchain.testnode.xyz/"
-  "https://rpc.airchain.network/"
-  "https://airchain-rpc1.node.com/"
-  "https://airchain-rpc.testnet.net/"
-  "https://rpc-airchain.t1.com/"
-  "https://testnet-airchain-rpc.org/"
-  "https://airchain-test-rpc.io/"
   "https://test-rpc.airchain.com/"
 )
 
@@ -94,14 +49,12 @@ function update_rpc_and_restart {
     echo -e "\e[31mFailed to update RPC URL in config file.\e[0m"
     exit 1
   fi
-
   echo -e "\e[32mService $service_name stopped.\e[0m"
   systemctl stop "$service_name"
   if [[ $? -ne 0 ]]; then
     echo -e "\e[31mFailed to stop service $service_name.\e[0m"
     exit 1
   fi
-
   echo -e "\e[32mUpdating repository...\e[0m"
   cd "$repository_path" || exit
   git fetch --quiet
@@ -111,7 +64,6 @@ function update_rpc_and_restart {
     echo -e "\e[31mFailed to update repository.\e[0m"
     exit 1
   fi
-
   echo -e "\e[32mRPC URL updated to: $random_url\e[0m"
   echo -e "\e[32mPerforming rollback...\e[0m"
   cd ~/tracks || exit
@@ -119,7 +71,6 @@ function update_rpc_and_restart {
   go run cmd/main.go rollback || exit
   go run cmd/main.go rollback || exit
   echo -e "\e[32mRollback completed.\e[0m"
-
   echo -e "\e[32mRestarting service $service_name...\e[0m"
   systemctl start "$service_name"
   if [[ $? -ne 0 ]]; then
@@ -136,29 +87,21 @@ function display_waiting_message {
 
 function check_for_updates {
   cd "$repository_path" || exit
-
   git fetch --quiet
-
   local local_commit=$(git rev-parse @)
   local remote_commit=$(git rev-parse @{u})
-
   if [ "$local_commit" != "$remote_commit" ]; then
     echo -e "\e[31m+\e[0m \e[32m+\e[0m \e[31m+\e[0m \e[32m+\e[0m \e[31m+\e[0m"
     echo -e "\e[32mUpdate found. Downloading and updating...\e[0m"
-    
     wget -q https://raw.githubusercontent.com/Onixs50/fix-stationd-errors/main/fix.sh -O fix.sh > /dev/null 2>&1
     chmod +x fix.sh > /dev/null 2>&1
-
     echo -e "\e[32mUpdate completed successfully!\e[0m"
-
     touch "$update_flag"
     echo -e "\e[32mStopping current script...\e[0m"
-    
     # Stopping the current instance
     pkill -f "fix.sh"
-
     echo -e "\e[32mRestarting script to apply changes...\e[0m"
-    exec "$0"
+    exec "$repository_path/fix.sh"
   else
     rm -f "$update_flag"
   fi
@@ -173,7 +116,6 @@ echo "Timestamp: $(date)"
 echo -e "\e[32mCoded By Onixia\e[0m"
 echo "Script started to monitor errors in airchain logs..."
 echo "Timestamp: $(date)"
-
 last_update_time=$(date +%s)
 update_interval=120
 
@@ -183,7 +125,6 @@ while true; do
     check_for_updates
     last_update_time=$current_time
   fi
-
   logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
   for error in "${error_strings[@]}"; do
     if echo "$logs" | grep -q "$error"; then
@@ -191,7 +132,4 @@ while true; do
       update_rpc_and_restart
       break
     fi
-  done
-
-  sleep 40
-done
+  
