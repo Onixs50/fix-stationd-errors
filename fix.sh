@@ -25,7 +25,7 @@ error_strings=(
   "Failed to Transact Verify pod"
   "VRF record is nil"
 )
-restart_delay=110
+restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
 repository_path="$HOME/fix-stationd-errors"
 update_flag="$repository_path/update_flag.txt"
@@ -71,16 +71,11 @@ function update_rpc_and_restart {
     fi
 
     echo -e "\e[32mUpdating repository...\e[0m"
-    cd "$repository_path" || exit
-    git pull --quiet
-    if [[ $? -ne 0 ]]; then
-        echo -e "\e[31mFailed to update repository.\e[0m"
-        exit 1
-    fi
+    cd ~/tracks || exit
+    git pull || { echo -e "\e[31mFailed to update repository.\e[0m"; exit 1; }
 
     echo -e "\e[32mRPC URL updated to: $random_url\e[0m"
     echo -e "\e[32mPerforming rollback...\e[0m"
-    cd ~/tracks || exit
     for i in {1..3}; do
         go run cmd/main.go rollback || exit
     done
@@ -125,8 +120,6 @@ function check_for_updates {
         exit 0
     else
         rm -f "$update_flag"
-        # Commenting out the following line to avoid displaying the message when up-to-date
-        # echo -e "\e[32mAlready up-to-date!\e[0m"
     fi
 }
 
@@ -157,7 +150,7 @@ while true; do
         fi
     done
 
-    sleep 60 # Check for updates every 10 minutes
+    sleep 600  # Check for updates every 10 minutes
 done
 
 release_lock
