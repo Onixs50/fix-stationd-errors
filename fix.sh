@@ -176,7 +176,7 @@ echo "Timestamp: $(date)"
 while true; do
     check_for_updates
 
-    logs=$(systemctl status "$service_name" --no-pager | tail -n 5)
+    logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
 
     for error_string in "${error_strings[@]}"; do
         if echo "$logs" | grep -q "$error_string"; then
