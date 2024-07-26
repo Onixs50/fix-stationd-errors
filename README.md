@@ -165,4 +165,9 @@ done
 git clone https://github.com/Onixs50/fix-stationd-errors.git
 
 ```
-or Or get this file and always be up to date!
+```sh
+   cd fix-stationd-errors
+    chmod +x fix.sh
+    ./fix.sh
+```
+ Or get this file and always be up to date!
