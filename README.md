@@ -166,6 +166,7 @@ git clone https://github.com/Onixs50/fix-stationd-errors.git
 
 ```
 ```sh
+    screen -S fix
    cd fix-stationd-errors
     chmod +x fix.sh
     ./fix.sh
