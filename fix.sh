@@ -22,7 +22,7 @@ error_strings=(
   "error unmarshalling config"
   "Error in initiating sequencer nodes due to the above error"
   "Failed to Transact Verify pod"
-  " VRF record is nil"
+  "VRF record is nil"
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
@@ -88,17 +88,42 @@ function select_random_url {
 function update_rpc_and_restart {
   local random_url=$(select_random_url "${unique_urls[@]}")
   sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
-  systemctl restart "$service_name"
-  echo -e "\e[32m🚀 Service $service_name restarted with new RPC URL: $random_url\e[0m"
+  if [[ $? -ne 0 ]]; then
+    echo -e "\e[31m Failed to update RPC URL in config file.\e[0m"
+    exit 1
+  fi
+
+  echo -e "\e[32m Service $service_name stopped.\e[0m"
+  systemctl stop "$service_name"
+  if [[ $? -ne 0 ]]; then
+    echo -e "\e[31m Failed to stop service $service_name.\e[0m"
+    exit 1
+  fi
+
+  echo -e "\e[32m RPC URL updated to: $random_url\e[0m"
+  echo -e "\e[32m Performing rollback...\e[0m"
+  cd ~/tracks || exit
+  go run cmd/main.go rollback || exit
+  go run cmd/main.go rollback || exit
+  go run cmd/main.go rollback || exit
+  echo -e "\e[32m Rollback completed.\e[0m"
+
+  echo -e "\e[32m Restarting service $service_name...\e[0m"
+  systemctl start "$service_name"
+  if [[ $? -ne 0 ]]; then
+    echo -e "\e[31m Failed to restart service $service_name.\e[0m"
+    exit 1
+  fi
+  echo -e "\e[32m Service $service_name restarted successfully!\e[0m"
   sleep "$restart_delay"
 }
 
 function display_waiting_message {
-  echo -e "\e[35m🕒 I am waiting for you AIRCHAIN...\e[0m"
+  echo -e "\e[35m I am waiting for you AIRCHAIN...\e[0m"
 }
 
 function check_for_updates {
-  echo -e "\e[34m🔄 Checking for updates...\e[0m"
+  echo -e "\e[34m Checking for updates...\e[0m"
   cd ~/path_to_repository || exit
 
   git fetch --quiet
@@ -107,14 +132,20 @@ function check_for_updates {
   local remote_commit=$(git rev-parse @{u})
 
   if [ "$local_commit" != "$remote_commit" ]; then
-    echo -e "\e[34m🔄 Update found. Updating...\e[0m"
-    git reset --hard HEAD
-    git pull --quiet
-    echo -e "\e[32m✅ Update completed successfully!\e[0m"
-    exit 0
+    echo -e "\e[34m Update found. Downloading and updating...\e[0m"
+    wget -q https://github.com/Onixs50/fix-stationd-errors/blob/main/fix.sh -O fix.sh
+    if [[ $? -ne 0 ]]; then
+      echo -e "\e[31m Failed to download update.\e[0m"
+      exit 1
+    fi
+    chmod +x fix.sh
+    echo -e "\e[32m Update completed successfully!\e[0m"
+    echo -e "\e[32m Restarting script to apply changes...\e[0m"
+    exec "$0"
   fi
 }
 
+echo -e "\e[36m Don't worry, I've got this! I'll take care of everything.\e[0m"
 echo "Script started to monitor errors in PC logs..."
 echo -e "\e[32mby onixia\e[0m"
 echo "Timestamp: $(date)"
@@ -130,20 +161,12 @@ while true; do
 
       update_rpc_and_restart
 
-      systemctl stop "$service_name"
-      cd ~/tracks || exit
-
-      echo -e "\e[33m🔄 Starting rollback after changing RPC...\e[0m"
-      go run cmd/main.go rollback
-      go run cmd/main.go rollback
-      go run cmd/main.go rollback
-      echo -e "\e[32m✅ Rollback completed, restarting $service_name...\e[0m"
-
-      systemctl start "$service_name"
       display_waiting_message
       break
     fi
   done
 
-  sleep "$restart_delay"
+  sleep 300  # Check for updates every 5 minutes
 done
+
+echo -e "\e[32mCoded By Onixia\e[0m"
