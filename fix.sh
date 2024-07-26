@@ -81,6 +81,7 @@ unique_urls=(
   "https://airchain-test-rpc.io/"
   "https://test-rpc.airchain.com/"
 )
+
 # Acquire lock to prevent multiple instances
 LOCKFILE="/tmp/fix-stationd-errors.lock"
 
@@ -157,7 +158,8 @@ function check_for_updates {
         exec "$repository_path/fix.sh"
     else
         rm -f "$update_flag"
-        echo -e "\e[32mAlready up-to-date!\e[0m"
+        # Commenting out the following line to avoid displaying the message when up-to-date
+        # echo -e "\e[32mAlready up-to-date!\e[0m"
     fi
 }
 
