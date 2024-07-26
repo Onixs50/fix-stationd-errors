@@ -120,7 +120,7 @@ function check_for_updates {
 
         # Stop and remove the current script
         pkill -f "$script_name"
-        sleep 2  # Allow time for the process to be stopped
+        sleep 5  # Allow time for the process to be stopped
 
         echo -e "\e[32mRestarting script to apply changes...\e[0m"
         exec "$repository_path/fix.sh" # Execute the updated script
@@ -158,7 +158,7 @@ while true; do
         fi
     done
 
-    sleep 60  # Check for updates every 10 minutes
+    sleep 600  # Check for updates every 10 minutes
 done
 
 release_lock
