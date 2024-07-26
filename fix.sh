@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Initial settings
 service_name="stationd"
 error_strings=(
   "ERROR"
@@ -24,7 +25,7 @@ error_strings=(
   "Failed to Transact Verify pod"
   " VRF record is nil"
 )
-restart_delay=120
+restart_delay=100
 config_file="$HOME/.tracks/config/sequencer.toml"
 
 unique_urls=(
@@ -64,6 +65,9 @@ unique_urls=(
   "https://airchains-testnet-rpc.mekonglabs.tech/"
 )
 
+api_url="https://quote-garden.herokuapp.com/api/v3/quotes/random"
+quotes_file="$HOME/.tracks/quotes_used.txt"
+
 function select_random_url {
   local array=("$@")
   local rand_index=$(( RANDOM % ${#array[@]} ))
@@ -74,17 +78,38 @@ function update_rpc_and_restart {
   local random_url=$(select_random_url "${unique_urls[@]}")
   sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
   systemctl restart "$service_name"
-  echo "Service $service_name restarted"
-  echo -e "\e[32mRemoved RPC URL: $random_url\e[0m"
+  echo -e "\e[32m🟢 Service $service_name restarted with new RPC URL: $random_url\e[0m"
   sleep "$restart_delay"
 }
 
 function display_waiting_message {
-  echo -e "\e[35mI am waiting for you AIRCHAIN\e[0m"
+  echo -e "\e[35m💬 I am waiting for you AIRCHAIN...\e[0m"
+}
+
+function get_motivational_message {
+  local response=$(curl -s "$api_url")
+  local message=$(echo "$response" | jq -r '.data[0].quote')
+  echo "$message"
+}
+
+function display_motivational_message {
+  local message=$(get_motivational_message)
+  echo -e "\e[34m$message\e[0m"
+}
+
+function display_daily_greeting {
+  local current_hour=$(date +"%H")
+  if [ "$current_hour" -lt 12 ]; then
+    echo -e "\e[36m🌅 Good morning! Have a great day ahead!\e[0m"
+  elif [ "$current_hour" -ge 18 ]; then
+    echo -e "\e[33m🌙 Good night! Sleep well and don't worry, I’m here to fix everything!\e[0m"
+  else
+    echo -e "\e[32m☀️ Good afternoon! Keep up the great work!\e[0m"
+  fi
 }
 
 function check_for_updates {
-  echo "Checking for updates..."
+  echo -e "\e[33m🔄 Checking for updates...\e[0m"
   local repo_url="https://github.com/Onixs50/fix-stationd-errors.git"
   local local_dir="$HOME/fix-stationd-errors"
   
@@ -95,62 +120,56 @@ function check_for_updates {
     local remote_commit=$(git rev-parse origin/main)
     
     if [ "$local_commit" != "$remote_commit" ]; then
-      echo "New update found. Updating..."
+      echo -e "\e[32m🔧 New update found! Updating...\e[0m"
       git pull origin main
-      echo -e "\e[32mUpdated to the latest version from $repo_url\e[0m"
+      echo -e "\e[32m✅ Updated to the latest version from $repo_url\e[0m"
+      
+      echo -e "\e[31m🚨 Restarting the script to apply new updates...\e[0m"
+      pkill -f "$(basename $0)"
+      exec "$0" &
+      
     else
-      echo "Already up-to-date."
+      echo -e "\e[32m✅ Already up-to-date.\e[0m"
     fi
   else
     git clone "$repo_url" "$local_dir"
-    echo -e "\e[32mCloned the repository from $repo_url\e[0m"
+    echo -e "\e[32m🔄 Cloned the repository from $repo_url\e[0m"
   fi
 }
 
-function fetch_crypto_quote {
-  local quote=$(curl -s https://api.cryptomotivation.com/random | jq -r '.quote')
-  echo -e "\e[36mCrypto Motivation: $quote\e[0m"
+function log_used_quote {
+  local message="$1"
+  echo "$message" >> "$quotes_file"
 }
 
-function morning_greeting {
-  echo -e "\e[34mGood morning!☀️ Ready to conquer the crypto world today?🚀\e[0m"
+function is_quote_used {
+  local message="$1"
+  grep -Fxq "$message" "$quotes_file"
 }
 
-function night_greeting {
-  echo -e "\e[34mGood night!🌙 Sleep well and dream of moonshots.✨ Don't worry, I'm here to keep everything running smoothly.🛌\e[0m"
-}
-
-echo "Script started to monitor errors in PC logs..."
-echo -e "\e[32mby onixia\e[0m"
+echo -e "\e[36m🛠️ Script started to monitor errors in PC logs...\e[0m"
+echo -e "\e[32mby Onixs\e[0m"
 echo "Timestamp: $(date)"
 
-# Initial morning greeting
-morning_greeting
-
-# Schedule morning greeting at 7 AM and night greeting at 10 PM
-(crontab -l 2>/dev/null; echo "0 7 * * * $(realpath $0) morning_greeting") | crontab -
-(crontab -l 2>/dev/null; echo "0 22 * * * $(realpath $0) night_greeting") | crontab -
-
-# Initial fetch of crypto motivation quote
-fetch_crypto_quote
-
 while true; do
-  logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
+  check_for_updates
 
+  display_daily_greeting
+
+  logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
   for error_string in "${error_strings[@]}"; do
     if echo "$logs" | grep -q "$error_string"; then
-      echo "Found error ('$error_string') in logs, updating $config_file and restarting $service_name..."
-
+      echo -e "\e[31mFound error ('$error_string') in logs, updating $config_file and restarting $service_name...\e[0m"
       update_rpc_and_restart
 
       systemctl stop "$service_name"
       cd ~/tracks
 
-      echo "Starting rollback after changing RPC..."
+      echo -e "\e[31m🔄 Starting rollback after changing RPC...\e[0m"
       go run cmd/main.go rollback
       go run cmd/main.go rollback
       go run cmd/main.go rollback
-      echo "Rollback completed, restarting $service_name..."
+      echo -e "\e[32m✅ Rollback completed, restarting $service_name...\e[0m"
 
       systemctl start "$service_name"
       display_waiting_message
@@ -158,12 +177,15 @@ while true; do
     fi
   done
 
-  check_for_updates
-  
-  # Fetch and display a new crypto quote every 2 hours
-  fetch_crypto_quote
-  sleep 7200
-done
+  local message
+  while true; do
+    message=$(get_motivational_message)
+    if ! is_quote_used "$message"; then
+      break
+    fi
+  done
+  display_motivational_message
+  log_used_quote "$message"
 
-# Support message
-echo -e "\e[31m🚀🚀🚀 If you would like to support me, you can donate to this address: 0x7F60244433Af55b0f030f05a798A48Efc01b18b1 🚀🚀🚀\e[0m"
+  sleep 300 # Sleep for 5 minutes
+done
