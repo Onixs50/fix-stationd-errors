@@ -113,10 +113,8 @@ function check_for_updates {
         echo -e "\e[32mUpdate completed successfully!\e[0m"
         echo -e "\e[32mStopping current script...\e[0m"
 
-        # Execute the updated script in the background
-        nohup "$repository_path/fix.sh" &> /dev/null &
-
-        # Stop the current script
+        # Run the updated script in the same screen session
+        "$repository_path/fix.sh"
         exit 0
     else
         rm -f "$update_flag"
@@ -138,7 +136,7 @@ echo "Timestamp: $(date)"
 while true; do
     check_for_updates
 
-    logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
+    logs=$(systemctl status "$service_name" --no-pager | tail -n 5)
 
     for error_string in "${error_strings[@]}"; do
         if echo "$logs" | grep -q "$error_string"; then
@@ -150,7 +148,7 @@ while true; do
         fi
     done
 
-    sleep 60  # Check for updates every 10 minutes
+    sleep 600  # Check for updates every 10 minutes
 done
 
 release_lock
