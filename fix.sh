@@ -22,7 +22,7 @@ error_strings=(
   "Failed to Transact Verify pod"
   " VRF record is nil"
 )
-restart_delay=120
+restart_delay=100
 config_file="$HOME/.tracks/config/sequencer.toml"
 
 unique_urls=(
