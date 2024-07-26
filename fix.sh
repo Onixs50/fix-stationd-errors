@@ -26,7 +26,7 @@ error_strings=(
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
-repository_path="$HOME/fix-stationd-errors"  
+repository_path="$HOME/fix-stationd-errors"  # مسیر صحیح به پوشه مخزن خود
 
 unique_urls=(
   "https://t-airchains.rpc.utsa.tech/"
@@ -146,14 +146,9 @@ function check_for_updates {
   fi
 }
 
-echo -e "\e[36m████████╗██╗  ██╗██████╗ ██████╗ ███████╗██████╗ \e[0m"
-echo -e "\e[36m╚══██╔══╝██║  ██║██╔══██╗██╔══██╗██╔════╝██╔══██╗\e[0m"
-echo -e "\e[36m   ██║   ███████║██████╔╝██████╔╝█████╗  ██████╔╝\e[0m"
-echo -e "\e[36m   ██║   ██╔══██║██╔══██╗██╔═══╝ ██╔══╝  ██╔══██╗\e[0m"
-echo -e "\e[36m   ██║   ██║  ██║██║  ██║██║     ███████╗██║  ██║\e[0m"
-echo -e "\e[36m   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝\e[0m"
+
 echo -e "\e[32mCoded By Onixia\e[0m"
-echo "Script started to monitor errors in PC logs..."
+echo "Script started to monitor errors in shit air..."
 echo "Timestamp: $(date)"
 
 while true; do
@@ -175,4 +170,4 @@ while true; do
   sleep 300  # Check for updates every 5 minutes
 done
 
-echo -e "\e[32mCoded By Onixia\e[0m"
+echo -e "\e[32mDONE\e[0m"
