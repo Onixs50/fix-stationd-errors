@@ -175,6 +175,7 @@ echo "Script started to monitor errors in airchain logs..."
 echo "Timestamp: $(date)"
 
 last_update_time=$(date +%s)
+update_interval=120
 
 while true; do
   current_time=$(date +%s)
@@ -183,7 +184,7 @@ while true; do
     last_update_time=$current_time
   fi
 
-  logs=$(systemctl status "$service_name" --no-pager | tail -n 9)
+  logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
   for error in "${error_strings[@]}"; do
     if echo "$logs" | grep -q "$error"; then
       echo -e "\e[31mFound error ('$error') in logs, updating $config_file and restarting $service_name...\e[0m"
