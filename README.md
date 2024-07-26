@@ -160,9 +160,9 @@ done
     ```
 ![image](https://github.com/user-attachments/assets/fae5e553-263b-4a80-be8a-5607817ad8e4)
 
+ ```sh
 
+git clone https://github.com/Onixs50/fix-stationd-errors.git
 
-
-
-
-
+```
+or Or get this file and always be up to date!
