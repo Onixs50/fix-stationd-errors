@@ -26,7 +26,8 @@ error_strings=(
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
-repository_path="/root/fix-stationd-errors"
+repository_path="$HOME/fix-stationd-errors"  # مسیر صحیح به پوشه مخزن خود
+
 unique_urls=(
   "https://t-airchains.rpc.utsa.tech/"
   "https://airchains.rpc.t.stavr.tech/"
@@ -124,7 +125,7 @@ function display_waiting_message {
 
 function check_for_updates {
   echo -e "\e[34m Checking for updates...\e[0m"
-  cd ~"/root/fix-stationd-errors" || exit
+  cd "$repository_path" || exit
 
   git fetch --quiet
 
@@ -133,7 +134,7 @@ function check_for_updates {
 
   if [ "$local_commit" != "$remote_commit" ]; then
     echo -e "\e[34m Update found. Downloading and updating...\e[0m"
-    wget -q https://github.com/Onixs50/fix-stationd-errors/blob/main/fix.sh -O fix.sh
+    wget -q https://raw.githubusercontent.com/Onixs50/fix-stationd-errors/main/fix.sh -O fix.sh
     if [[ $? -ne 0 ]]; then
       echo -e "\e[31m Failed to download update.\e[0m"
       exit 1
@@ -145,9 +146,14 @@ function check_for_updates {
   fi
 }
 
-echo -e "\e[36m Don't worry, I've got this! I'll take care of everything.\e[0m"
+echo -e "\e[36m████████╗██╗  ██╗██████╗ ██████╗ ███████╗██████╗ \e[0m"
+echo -e "\e[36m╚══██╔══╝██║  ██║██╔══██╗██╔══██╗██╔════╝██╔══██╗\e[0m"
+echo -e "\e[36m   ██║   ███████║██████╔╝██████╔╝█████╗  ██████╔╝\e[0m"
+echo -e "\e[36m   ██║   ██╔══██║██╔══██╗██╔═══╝ ██╔══╝  ██╔══██╗\e[0m"
+echo -e "\e[36m   ██║   ██║  ██║██║  ██║██║     ███████╗██║  ██║\e[0m"
+echo -e "\e[36m   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝\e[0m"
+echo -e "\e[32mCoded By Onixia\e[0m"
 echo "Script started to monitor errors in PC logs..."
-echo -e "\e[32mby onixia\e[0m"
 echo "Timestamp: $(date)"
 
 while true; do
