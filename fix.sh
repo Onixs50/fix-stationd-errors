@@ -118,12 +118,11 @@ function check_for_updates {
         echo -e "\e[32mUpdate completed successfully!\e[0m"
         echo -e "\e[32mStopping current script...\e[0m"
 
-        # Stop and remove the current script
-        pkill -f "$script_name"
-        sleep 5  # Allow time for the process to be stopped
+        # Execute the updated script in the background
+        nohup "$repository_path/fix.sh" &> /dev/null &
 
-        echo -e "\e[32mRestarting script to apply changes...\e[0m"
-        exec "$repository_path/fix.sh" # Execute the updated script
+        # Stop the current script
+        exit 0
     else
         rm -f "$update_flag"
         # Commenting out the following line to avoid displaying the message when up-to-date
