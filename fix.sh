@@ -1,13 +1,5 @@
 #!/bin/bash
 
-
-# Check if another instance of the script is running
-if pgrep -f "fix.sh" > /dev/null 2>&1; then
-    echo "Another instance of the script is running."
-    exit 1
-fi
-#!/bin/bash
-
 service_name="stationd"
 error_strings=(
   "ERROR"
@@ -194,5 +186,5 @@ while true; do
     fi
   done
 
-  sleep 60
+  sleep 40
 done
