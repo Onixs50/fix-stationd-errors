@@ -124,7 +124,7 @@ function display_waiting_message {
 
 function check_for_updates {
   echo -e "\e[34m Checking for updates...\e[0m"
-  cd ~/path_to_repository || exit
+  cd ~"/root/fix-stationd-errors" || exit
 
   git fetch --quiet
 
