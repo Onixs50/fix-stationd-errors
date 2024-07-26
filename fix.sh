@@ -174,8 +174,14 @@ echo -e "\e[32mCoded By Onixia\e[0m"
 echo "Script started to monitor errors in airchain logs..."
 echo "Timestamp: $(date)"
 
+last_update_time=$(date +%s)
+
 while true; do
-  check_for_updates
+  current_time=$(date +%s)
+  if [ $((current_time - last_update_time)) -ge $update_interval ]; then
+    check_for_updates
+    last_update_time=$current_time
+  fi
 
   logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
   for error in "${error_strings[@]}"; do
