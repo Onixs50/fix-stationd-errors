@@ -158,7 +158,7 @@ while true; do
         fi
     done
 
-    sleep 600  # Check for updates every 10 minutes
+    sleep 60  # Check for updates every 10 minutes
 done
 
 release_lock
