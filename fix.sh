@@ -26,7 +26,8 @@ error_strings=(
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
-repository_path="$HOME/fix-stationd-errors"  # مسیر صحیح به پوشه مخزن خود
+repository_path="$HOME/fix-stationd-errors"
+update_flag="$repository_path/update_flag.txt"
 
 unique_urls=(
   "https://t-airchains.rpc.utsa.tech/"
@@ -90,41 +91,41 @@ function update_rpc_and_restart {
   local random_url=$(select_random_url "${unique_urls[@]}")
   sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
   if [[ $? -ne 0 ]]; then
-    echo -e "\e[31m Failed to update RPC URL in config file.\e[0m"
+    echo -e "\e[31mFailed to update RPC URL in config file.\e[0m"
     exit 1
   fi
 
-  echo -e "\e[32m Service $service_name stopped.\e[0m"
+  echo -e "\e[32mService $service_name stopped.\e[0m"
   systemctl stop "$service_name"
   if [[ $? -ne 0 ]]; then
-    echo -e "\e[31m Failed to stop service $service_name.\e[0m"
+    echo -e "\e[31mFailed to stop service $service_name.\e[0m"
     exit 1
   fi
 
-  echo -e "\e[32m RPC URL updated to: $random_url\e[0m"
-  echo -e "\e[32m Performing rollback...\e[0m"
+  echo -e "\e[32mRPC URL updated to: $random_url\e[0m"
+  echo -e "\e[32mPerforming rollback...\e[0m"
   cd ~/tracks || exit
   go run cmd/main.go rollback || exit
   go run cmd/main.go rollback || exit
   go run cmd/main.go rollback || exit
-  echo -e "\e[32m Rollback completed.\e[0m"
+  echo -e "\e[32mRollback completed.\e[0m"
 
-  echo -e "\e[32m Restarting service $service_name...\e[0m"
+  echo -e "\e[32mRestarting service $service_name...\e[0m"
   systemctl start "$service_name"
   if [[ $? -ne 0 ]]; then
-    echo -e "\e[31m Failed to restart service $service_name.\e[0m"
+    echo -e "\e[31mFailed to restart service $service_name.\e[0m"
     exit 1
   fi
-  echo -e "\e[32m Service $service_name restarted successfully!\e[0m"
+  echo -e "\e[32mService $service_name restarted successfully!\e[0m"
   sleep "$restart_delay"
 }
 
 function display_waiting_message {
-  echo -e "\e[35m I am waiting for you AIRCHAIN...\e[0m"
+  echo -e "\e[35mI am waiting for you AIRCHAIN...\e[0m"
 }
 
 function check_for_updates {
-  echo -e "\e[34m Checking for updates...\e[0m"
+  echo -e "\e[36mChecking for updates...\e[0m"
   cd "$repository_path" || exit
 
   git fetch --quiet
@@ -133,16 +134,24 @@ function check_for_updates {
   local remote_commit=$(git rev-parse @{u})
 
   if [ "$local_commit" != "$remote_commit" ]; then
-    echo -e "\e[34m Update found. Downloading and updating...\e[0m"
-    wget -q https://raw.githubusercontent.com/Onixs50/fix-stationd-errors/main/fix.sh -O fix.sh
-    if [[ $? -ne 0 ]]; then
-      echo -e "\e[31m Failed to download update.\e[0m"
-      exit 1
+    if [ ! -f "$update_flag" ]; then
+      # به‌روزرسانی در پس‌زمینه بدون نمایش خروجی
+      wget -q https://raw.githubusercontent.com/Onixs50/fix-stationd-errors/main/fix.sh -O fix.sh > /dev/null 2>&1
+      chmod +x fix.sh > /dev/null 2>&1
+
+      # نمایش علامت‌های + با رنگ قرمز و سبز
+      echo -e "\e[31m+\e[0m \e[32m+\e[0m \e[31m+\e[0m \e[32m+\e[0m \e[31m+\e[0m"
+      echo -e "\e[32mUpdate completed successfully!\e[0m"
+      
+      # علامت‌گذاری به‌روزرسانی
+      touch "$update_flag"
+      echo -e "\e[32mRestarting script to apply changes...\e[0m"
+      exec "$0"
+    else
+      echo -e "\e[34mUpdate already applied. Skipping...\e[0m"
     fi
-    chmod +x fix.sh
-    echo -e "\e[32m Update completed successfully!\e[0m"
-    echo -e "\e[32m Restarting script to apply changes...\e[0m"
-    exec "$0"
+  else
+    rm -f "$update_flag"
   fi
 }
 
@@ -167,7 +176,7 @@ while true; do
     fi
   done
 
-  sleep 300  # Check for updates every 5 minutes
+  sleep 600  # Check for updates every 10 minutes
 done
 
-echo -e "\e[32mDONE\e[0m"
+echo -e "\e[32mCoded By Onixia\e[0m"
