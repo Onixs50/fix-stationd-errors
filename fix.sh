@@ -116,6 +116,14 @@ function update_rpc_and_restart {
         exit 1
     fi
 
+    echo -e "\e[32mUpdating repository...\e[0m"
+    cd "$repository_path" || exit
+    git pull --quiet
+    if [[ $? -ne 0 ]]; then
+        echo -e "\e[31mFailed to update repository.\e[0m"
+        exit 1
+    fi
+
     echo -e "\e[32mRPC URL updated to: $random_url\e[0m"
     echo -e "\e[32mPerforming rollback...\e[0m"
     cd ~/tracks || exit
@@ -155,7 +163,7 @@ function check_for_updates {
         touch "$update_flag"
         echo -e "\e[32mUpdate completed successfully!\e[0m"
         echo -e "\e[32mRestarting script to apply changes...\e[0m"
-        exec "$repository_path/fix.sh"
+        exec "$repository_path/fix.sh" # Execute the updated script
     else
         rm -f "$update_flag"
         # Commenting out the following line to avoid displaying the message when up-to-date
@@ -178,7 +186,7 @@ echo "Timestamp: $(date)"
 while true; do
     check_for_updates
 
-    logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
+    logs=$(systemctl status "$service_name" --no-pager | tail -n 5)
 
     for error_string in "${error_strings[@]}"; do
         if echo "$logs" | grep -q "$error_string"; then
