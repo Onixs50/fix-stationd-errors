@@ -122,7 +122,7 @@ while true; do
     exec $0 # Restart the script after update
   fi
 
-  logs=$(systemctl status "$service_name" --no-pager | tail -n 10)
+  logs=$(systemctl status "$service_name" --no-pager | tail -n 5)
 
   for error_string in "${error_strings[@]}"; do
     if echo "$logs" | grep -q "$error_string"; then
