@@ -25,7 +25,7 @@ error_strings=(
   "Failed to Transact Verify pod"
   "VRF record is nil"
 )
-restart_delay=120
+restart_delay=110
 config_file="$HOME/.tracks/config/sequencer.toml"
 repository_path="$HOME/fix-stationd-errors"
 update_flag="$repository_path/update_flag.txt"
