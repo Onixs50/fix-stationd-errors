@@ -26,7 +26,7 @@ error_strings=(
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
-
+repository_path="/root/fix-stationd-errors"
 unique_urls=(
   "https://t-airchains.rpc.utsa.tech/"
   "https://airchains.rpc.t.stavr.tech/"
