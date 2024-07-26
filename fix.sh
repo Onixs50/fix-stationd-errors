@@ -1,3 +1,5 @@
+#!/bin/bash
+
 service_name="stationd"
 error_strings=(
   "ERROR"
@@ -22,7 +24,7 @@ error_strings=(
   "Failed to Transact Verify pod"
   " VRF record is nil"
 )
-restart_delay=100
+restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
 
 unique_urls=(
@@ -87,20 +89,30 @@ function update_rpc_and_restart {
   local random_url=$(select_random_url "${unique_urls[@]}")
   sed -i -e "s|JunctionRPC = \"[^\"]*\"|JunctionRPC = \"$random_url\"|" "$config_file"
   systemctl restart "$service_name"
-  echo -e "\e[32mService $service_name restarted with new RPC URL: $random_url \e[0m"
+  echo -e "\e[32m🚀 Service $service_name restarted with new RPC URL: $random_url\e[0m"
   sleep "$restart_delay"
 }
 
 function display_waiting_message {
-  echo -e "\e[35mI am waiting for you AIRCHAIN... \u23F3\e[0m"
+  echo -e "\e[35m🕒 I am waiting for you AIRCHAIN...\e[0m"
 }
 
-function display_update_message {
-  echo -e "\e[33m🔄 Update in progress...\e[0m"
-}
+function check_for_updates {
+  echo -e "\e[34m🔄 Checking for updates...\e[0m"
+  cd ~/path_to_repository || exit
 
-function display_update_done_message {
-  echo -e "\e[32m✅ Update completed!\e[0m"
+  git fetch --quiet
+
+  local local_commit=$(git rev-parse @)
+  local remote_commit=$(git rev-parse @{u})
+
+  if [ "$local_commit" != "$remote_commit" ]; then
+    echo -e "\e[34m🔄 Update found. Updating...\e[0m"
+    git reset --hard HEAD
+    git pull --quiet
+    echo -e "\e[32m✅ Update completed successfully!\e[0m"
+    exit 0
+  fi
 }
 
 echo "Script started to monitor errors in PC logs..."
@@ -108,36 +120,24 @@ echo -e "\e[32mby onixia\e[0m"
 echo "Timestamp: $(date)"
 
 while true; do
-  # Check for updates
-  cd ~/fix-stationd-errors
-  git fetch --quiet
-  local_changes=$(git status --porcelain)
-  
-  if [ -n "$local_changes" ]; then
-    echo -e "\e[31m⚠️ Local changes detected, cannot update.\e[0m"
-  else
-    display_update_message
-    git pull --quiet
-    display_update_done_message
-    exec $0 # Restart the script after update
-  fi
+  check_for_updates
 
   logs=$(systemctl status "$service_name" --no-pager | tail -n 5)
 
   for error_string in "${error_strings[@]}"; do
     if echo "$logs" | grep -q "$error_string"; then
-      echo "Found error ('$error_string') in logs, updating $config_file and restarting $service_name..."
+      echo -e "\e[31mFound error ('$error_string') in logs, updating $config_file and restarting $service_name...\e[0m"
 
       update_rpc_and_restart
 
       systemctl stop "$service_name"
-      cd ~/tracks
+      cd ~/tracks || exit
 
-      echo "Starting rollback after changing RPC..."
+      echo -e "\e[33m🔄 Starting rollback after changing RPC...\e[0m"
       go run cmd/main.go rollback
       go run cmd/main.go rollback
       go run cmd/main.go rollback
-      echo "Rollback completed, restarting $service_name..."
+      echo -e "\e[32m✅ Rollback completed, restarting $service_name...\e[0m"
 
       systemctl start "$service_name"
       display_waiting_message
