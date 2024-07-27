@@ -134,7 +134,6 @@ echo "Script started to monitor errors in airchain logs..."
 echo "Timestamp: $(date)"
 last_update_time=$(date +%s)
 update_interval=120  # 2 دقیقه
-
 while true; do
   current_time=$(date +%s)
   if [ $((current_time - last_update_time)) -ge $update_interval ]; then
