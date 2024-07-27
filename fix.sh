@@ -130,7 +130,7 @@ echo -e "\e[32mCoded By Onixia\e[0m"
 echo "Script started to monitor errors in airchain logs..."
 echo "Timestamp: $(date)"
 last_update_time=$(date +%s)
-update_interval=120  # 2 دقیقه
+update_interval=30
 
 while true; do
   current_time=$(date +%s)
