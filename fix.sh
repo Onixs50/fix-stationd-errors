@@ -115,11 +115,13 @@ function check_for_updates {
     echo -e "\e[32mUpdate completed successfully!\e[0m"
     touch "$update_flag"
     echo -e "\e[32mRestarting script to apply changes...\e[0m"
+    rm -f "$LOCKFILE"
     exec bash "$repository_path/fix.sh"
   else
     rm -f "$update_flag"
   fi
 }
+
 echo -e "\e[1;32m============================================\e[0m"
 echo -e "\e[1;32m      Script Monitoring and Update Tool      \e[0m"
 echo -e "\e[1;32m          Created by Onixia                 \e[0m"
@@ -130,7 +132,7 @@ echo -e "\e[32mCoded By Onixia\e[0m"
 echo "Script started to monitor errors in airchain logs..."
 echo "Timestamp: $(date)"
 last_update_time=$(date +%s)
-update_interval=30
+update_interval=120  # 2 دقیقه
 
 while true; do
   current_time=$(date +%s)
