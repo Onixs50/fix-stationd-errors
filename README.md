@@ -159,18 +159,19 @@ done
     bash fix.sh
     ```
 ![image](https://github.com/user-attachments/assets/fae5e553-263b-4a80-be8a-5607817ad8e4)
+
 ## By installing this script, every time new errors are created or new and suitable RPCs are found, everything is automatically updated for you.
 
- ```sh
+```bash
+sudo rm -f /tmp/fix.sh.lock
 rm fix.sh
 rm -rf fix-stationd-errors
 git clone https://github.com/Onixs50/fix-stationd-errors.git
-
 ```
-```sh
-    screen -S fix
-   cd fix-stationd-errors
-    chmod +x fix.sh
-    ./fix.sh
+```bash
+screen -S fix
+cd fix-stationd-errors
+chmod +x fix.sh
+./fix.sh
 ```
- Or get this file and always be up to date!
+ 
