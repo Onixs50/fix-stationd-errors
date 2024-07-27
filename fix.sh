@@ -49,7 +49,38 @@ update_flag="$repository_path/update_flag.txt"
 unique_urls=(
   "https://t-airchains.rpc.utsa.tech/"
   "https://airchains.rpc.t.stavr.tech/"
-    "https://test-rpc.airchain.com/"
+  "https://airchains-rpc.chainad.org/"
+  "https://junction-rpc.kzvn.xyz/"
+  "https://airchains-testnet-rpc.apollo-sync.com/"
+  "https://rpc-airchain.danggia.xyz/"
+  "https://airchains-testnet-rpc.stakerhouse.com/"
+  "https://airchains-testnet-rpc.crouton.digital/"
+  "https://airchains-testnet-rpc.itrocket.net/"
+  "https://rpc1.airchains.t.cosmostaking.com/"
+  "https://rpc.airchain.yx.lu/"
+  "https://airchains-testnet-rpc.staketab.org/"
+  "https://rpc.airchains.aknodes.net/"
+  "https://airchains-rpc-testnet.zulnaaa.com/"
+  "https://rpc-testnet-airchains.nodeist.net/"
+  "https://airchains-testnet.rpc.stakevillage.net/"
+  "https://airchains-rpc.sbgid.com/"
+  "https://airchains-test.rpc.moonbridge.team/"
+  "https://rpc-airchains-t.sychonix.com/"
+  "https://junction-testnet-rpc.nodesync.top/"
+  "https://rpc-airchain.vnbnode.com/"
+  "https://junction-rpc.validatorvn.com/"
+  "https://airchains-testnet-rpc.nodesphere.net/"
+  "https://airchains-testnet-rpc.cherryvalidator.us/"
+  "https://airchain-testnet-rpc.cryptonode.id/"
+  "https://rpc.airchains.preferrednode.top/"
+  "https://airchains-testnet-rpc.validator247.com/"
+  "https://airchains-t-rpc.noders.services/"
+  "https://rpc.airchains-t.linkednode.xyz/"
+  "https://rpc-airchains.bootblock.xyz/"
+  "https://airchains-rpc.henry3222.xyz/"
+  "https://testnet.rpc.airchains.silentvalidator.com/"
+  "https://rpc.airchains.stakeup.tech/"
+  "https://airchains-testnet-rpc.mekonglabs.tech/"
 )
 
 function select_random_url {
@@ -131,7 +162,7 @@ echo -e "\e[32mCoded By Onixia\e[0m"
 echo "Script started to monitor errors in airchain logs..."
 echo "Timestamp: $(date)"
 last_update_time=$(date +%s)
-update_interval=30
+update_interval=80000
 
 while true; do
   current_time=$(date +%s)
