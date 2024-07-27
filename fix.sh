@@ -50,6 +50,10 @@ unique_urls=(
   "https://t-airchains.rpc.utsa.tech/"
   "https://airchains.rpc.t.stavr.tech/"
   "https://airchains-rpc.chainad.org/"
+  "https://airchains-testnet-rpc.nodesphere.net/"
+  "https://airchains-testnet-rpc.cherryvalidator.us/"
+  "https://airchain-testnet-rpc.cryptonode.id/"
+  "https://rpc.airchains.preferrednode.top/"
   "https://test-rpc.airchain.com/"
 )
 
