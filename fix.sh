@@ -49,8 +49,7 @@ update_flag="$repository_path/update_flag.txt"
 unique_urls=(
   "https://t-airchains.rpc.utsa.tech/"
   "https://airchains.rpc.t.stavr.tech/"
-  "https://airchains-rpc.chainad.org/"
-  "https://test-rpc.airchain.com/"
+    "https://test-rpc.airchain.com/"
 )
 
 function select_random_url {
