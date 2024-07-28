@@ -51,6 +51,7 @@ https://testnet.rpc.airchains.silentvalidator.com/
 https://junction-rpc.validatorvn.com/
 https://rpc1.airchains.t.cosmostaking.com/
 https://airchains-testnet-rpc.crouton.digital/
+https://airchains-rpc.tws.im/
 )
 
 function select_random_url {
