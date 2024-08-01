@@ -47,10 +47,40 @@ repository_path="$HOME/fix-stationd-errors"
 update_flag="$repository_path/update_flag.txt"
 
 unique_urls=(
-https://testnet.rpc.airchains.silentvalidator.com/
-https://junction-rpc.validatorvn.com/
-https://rpc1.airchains.t.cosmostaking.com/
+https://t-airchains.rpc.utsa.tech/
+https://airchains.rpc.t.stavr.tech/
+https://airchains-rpc.chainad.org/
+https://junction-rpc.kzvn.xyz/
+https://airchains-testnet-rpc.apollo-sync.com/
+https://rpc-airchain.danggia.xyz/
+https://airchains-testnet-rpc.stakerhouse.com/
 https://airchains-testnet-rpc.crouton.digital/
+https://airchains-testnet-rpc.itrocket.net/
+https://rpc1.airchains.t.cosmostaking.com/
+https://rpc.airchain.yx.lu/
+https://airchains-testnet-rpc.staketab.org/
+https://rpc.airchains.aknodes.net/
+https://airchains-rpc-testnet.zulnaaa.com/
+https://rpc-testnet-airchains.nodeist.net/
+https://airchains-testnet.rpc.stakevillage.net/
+https://airchains-rpc.sbgid.com/
+https://airchains-test.rpc.moonbridge.team/
+https://rpc-airchains-t.sychonix.com/
+https://junction-testnet-rpc.nodesync.top/
+https://rpc-airchain.vnbnode.com/
+https://junction-rpc.validatorvn.com/
+https://airchains-testnet-rpc.nodesphere.net/
+https://airchains-testnet-rpc.cherryvalidator.us/
+https://airchain-testnet-rpc.cryptonode.id/
+https://rpc.airchains.preferrednode.top/
+https://airchains-testnet-rpc.validator247.com/
+https://airchains-t-rpc.noders.services/
+https://rpc.airchains-t.linkednode.xyz/
+https://rpc-airchains.bootblock.xyz/
+https://airchains-rpc.henry3222.xyz/
+https://testnet.rpc.airchains.silentvalidator.com/
+https://rpc.airchains.stakeup.tech/
+https://airchains-testnet-rpc.mekonglabs.tech/
 )
 
 function select_random_url {
