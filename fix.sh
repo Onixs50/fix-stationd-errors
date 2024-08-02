@@ -40,6 +40,7 @@ error_strings=(
   "Error in initiating sequencer nodes due to the above error"
   "Failed to Transact Verify pod"
   " VRF record is nil"
+  "[GIN]"
 )
 restart_delay=120
 config_file="$HOME/.tracks/config/sequencer.toml"
