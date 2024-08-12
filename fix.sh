@@ -52,6 +52,7 @@ https://t-airchains.rpc.utsa.tech/
 https://airchains.rpc.t.stavr.tech/
 https://airchains-rpc.chainad.org/
 https://junction-rpc.kzvn.xyz/
+https://airchains-rpc.testnet.moonlet.cloud/public
 https://airchains-testnet-rpc.apollo-sync.com/
 https://rpc-airchain.danggia.xyz/
 https://airchains-testnet-rpc.stakerhouse.com/
